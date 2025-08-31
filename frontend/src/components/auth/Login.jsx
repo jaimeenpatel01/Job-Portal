@@ -79,6 +79,11 @@ const Login = () => {
                             onChange={changeEventHandler}
                             placeholder="patel@gmail.com"
                         />
+                        <div className='text-right mt-1'>
+                            <Link to="/forgot-password" className='text-sm text-blue-600 hover:underline'>
+                                Forgot Password?
+                            </Link>
+                        </div>
                     </div>
                     <div className='flex items-center justify-between'>
                         <RadioGroup className="flex items-center gap-4 my-5">

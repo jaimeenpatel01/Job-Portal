@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
+import { sendWelcomeEmail, sendPasswordResetEmail } from "../utils/novu.js";
 
 export const register = async (req, res) => {
     try {
@@ -15,8 +16,11 @@ export const register = async (req, res) => {
             });
         };
         const file = req.file;
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        let cloudResponse;
+        if (file) {
+            const fileUri = getDataUri(file);
+            cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        }
 
         const user = await User.findOne({ email });
         if (user) {
@@ -27,16 +31,29 @@ export const register = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        await User.create({
+        const newUser = await User.create({
             fullname,
             email,
             phoneNumber,
             password: hashedPassword,
             role,
             profile:{
-                profilePhoto:cloudResponse.secure_url,
+                profilePhoto: cloudResponse?.secure_url || "",
             }
         });
+
+        // Send welcome email
+        try {
+            await sendWelcomeEmail({
+                fullname,
+                email,
+                phoneNumber,
+                role
+            });
+        } catch (emailError) {
+            console.log('Email sending failed:', emailError);
+            // Don't fail registration if email fails
+        }
 
         return res.status(201).json({
             message: "Account created successfully.",
@@ -44,6 +61,10 @@ export const register = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Failed to register. Please try again.",
+            success: false
+        });
     }
 }
 export const login = async (req, res) => {
@@ -99,6 +120,10 @@ export const login = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Failed to login. Please try again.",
+            success: false
+        });
     }
 }
 export const logout = async (req, res) => {
@@ -109,6 +134,10 @@ export const logout = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Failed to logout. Please try again.",
+            success: false
+        });
     }
 }
 export const updateProfile = async (req, res) => {
@@ -116,9 +145,11 @@ export const updateProfile = async (req, res) => {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
         
         const file = req.file;
-        // cloudinary ayega idhar
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        let cloudResponse;
+        if (file) {
+            const fileUri = getDataUri(file);
+            cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        }
 
 
 
@@ -167,5 +198,115 @@ export const updateProfile = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Failed to update profile. Please try again.",
+            success: false
+        });
     }
 }
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required",
+                success: false
+            });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({
+                message: "User with this email does not exist",
+                success: false
+            });
+        }
+
+        // Generate reset token
+        const resetToken = jwt.sign(
+            { userId: user._id },
+            process.env.SECRET_KEY,
+            { expiresIn: '1h' }
+        );
+
+        // Send password reset email
+        try {
+            await sendPasswordResetEmail(email, resetToken);
+        } catch (emailError) {
+            console.log('Email sending failed:', emailError);
+            return res.status(500).json({
+                message: "Failed to send reset email. Please try again.",
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            message: "Password reset link sent to your email",
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to process request. Please try again.",
+            success: false
+        });
+    }
+};
+
+export const resetPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body;
+        
+        if (!token || !password) {
+            return res.status(400).json({
+                message: "Token and password are required",
+                success: false
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                message: "Password must be at least 6 characters long",
+                success: false
+            });
+        }
+
+        // Verify token
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.SECRET_KEY);
+        } catch (jwtError) {
+            return res.status(400).json({
+                message: "Invalid or expired reset token",
+                success: false
+            });
+        }
+
+        // Find user
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        return res.status(200).json({
+            message: "Password reset successfully",
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to reset password. Please try again.",
+            success: false
+        });
+    }
+};
