@@ -1,20 +1,34 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit'
+
+const initialState = {
+    user: null,
+    loading: false,
+    savedJobs: []
+}
 
 const authSlice = createSlice({
-    name:"auth",
-    initialState:{
-        loading:false,
-        user:null
-    },
-    reducers:{
-        // actions
-        setLoading:(state, action) => {
+    name: 'auth',
+    initialState,
+    reducers: {
+        setUser: (state, action) => {
+            state.user = action.payload;
+        },
+        setLoading: (state, action) => {
             state.loading = action.payload;
         },
-        setUser:(state, action) => {
-            state.user = action.payload;
+        setSavedJobs: (state, action) => {
+            state.savedJobs = action.payload;
+        },
+        addSavedJob: (state, action) => {
+            if (!state.savedJobs.find(job => job._id === action.payload._id)) {
+                state.savedJobs.push(action.payload);
+            }
+        },
+        removeSavedJob: (state, action) => {
+            state.savedJobs = state.savedJobs.filter(job => job._id !== action.payload);
         }
     }
-});
-export const {setLoading, setUser} = authSlice.actions;
+})
+
+export const { setUser, setLoading, setSavedJobs, addSavedJob, removeSavedJob } = authSlice.actions;
 export default authSlice.reducer;

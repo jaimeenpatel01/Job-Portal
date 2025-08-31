@@ -310,3 +310,118 @@ export const resetPassword = async (req, res) => {
         });
     }
 };
+
+export const saveJob = async (req, res) => {
+    try {
+        const { jobId } = req.body;
+        const userId = req.id;
+
+        if (!jobId) {
+            return res.status(400).json({
+                message: "Job ID is required",
+                success: false
+            });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        // Check if job is already saved
+        if (user.savedJobs.includes(jobId)) {
+            return res.status(400).json({
+                message: "Job is already saved",
+                success: false
+            });
+        }
+
+        // Add job to saved jobs
+        user.savedJobs.push(jobId);
+        await user.save();
+
+        return res.status(200).json({
+            message: "Job saved successfully",
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to save job. Please try again.",
+            success: false
+        });
+    }
+};
+
+export const unsaveJob = async (req, res) => {
+    try {
+        const { jobId } = req.body;
+        const userId = req.id;
+
+        if (!jobId) {
+            return res.status(400).json({
+                message: "Job ID is required",
+                success: false
+            });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        // Remove job from saved jobs
+        user.savedJobs = user.savedJobs.filter(id => id.toString() !== jobId);
+        await user.save();
+
+        return res.status(200).json({
+            message: "Job removed from saved jobs",
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to remove job. Please try again.",
+            success: false
+        });
+    }
+};
+
+export const getSavedJobs = async (req, res) => {
+    try {
+        const userId = req.id;
+
+        const user = await User.findById(userId).populate({
+            path: 'savedJobs',
+            populate: {
+                path: 'company',
+                select: 'name logo location'
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            message: "Saved jobs retrieved successfully",
+            savedJobs: user.savedJobs,
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to retrieve saved jobs. Please try again.",
+            success: false
+        });
+    }
+};

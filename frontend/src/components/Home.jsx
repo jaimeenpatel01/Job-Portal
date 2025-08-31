@@ -6,6 +6,7 @@ import FeaturesSection from './FeaturesSection'
 import LatestJobs from './LatestJobs'
 import StatsSection from './StatsSection'
 import Footer from './shared/Footer'
+import ScrollToTop from './ui/ScrollToTop'
 import useGetAllJobs from '@/hooks/useGetAllJobs'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -31,9 +32,10 @@ const Home = () => {
         </div>
                 <FeaturesSection />
         <LatestJobs />
-        <StatsSection />
+                <StatsSection />
         <Footer />
-    </div>
+        <ScrollToTop />
+      </div>
   )
 }
 

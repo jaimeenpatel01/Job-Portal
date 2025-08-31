@@ -5,7 +5,6 @@ import Signup from './components/auth/Signup'
 import ForgotPassword from './components/auth/ForgotPassword'
 import ResetPassword from './components/auth/ResetPassword'
 import Home from './components/Home'
-import Jobs from './components/Jobs'
 import Browse from './components/Browse'
 import Profile from './components/Profile'
 import JobDescription from './components/JobDescription'
@@ -38,10 +37,6 @@ const appRouter = createBrowserRouter([
   {
     path: '/reset-password',
     element: <ResetPassword />
-  },
-  {
-    path: "/jobs",
-    element: <Jobs />
   },
   {
     path: "/description/:id",

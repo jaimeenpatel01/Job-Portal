@@ -2,11 +2,10 @@ import React from 'react'
 import LatestJobCards from './LatestJobCards';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'; 
-
-// const randomJobs = [1, 2, 3, 4, 5, 6, 7, 8];
+import { JobCardSkeleton } from './ui/skeleton';
 
 const LatestJobs = () => {
-    const {allJobs} = useSelector(store=>store.job);
+    const {allJobs, loading} = useSelector(store=>store.job);
     const navigate = useNavigate();
    
     return (
@@ -21,7 +20,13 @@ const LatestJobs = () => {
                 </p>
             </div>
             
-            {allJobs.length <= 0 ? (
+            {loading ? (
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                    {[...Array(6)].map((_, index) => (
+                        <JobCardSkeleton key={index} />
+                    ))}
+                </div>
+            ) : allJobs.length <= 0 ? (
                 <div className='text-center py-16'>
                     <div className='w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
                         <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +44,7 @@ const LatestJobs = () => {
                 </div>
             )}
             
-                            <div className='text-center mt-10'>
+            <div className='text-center mt-10'>
                 <button 
                     onClick={() => navigate('/browse')}
                     className='inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'
