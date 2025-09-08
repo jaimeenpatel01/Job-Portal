@@ -3,7 +3,7 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group'
 import { Label } from './ui/label'
 import { useDispatch } from 'react-redux'
 import { setSearchedQuery } from '@/redux/jobSlice'
-import { Filter, MapPin, Building2, DollarSign, Clock, Users, X, ChevronDown } from 'lucide-react'
+import { Filter, MapPin, Building2, DollarSign, Clock, Users, ChevronDown } from 'lucide-react'
 import { Button } from './ui/button'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import { 
@@ -144,9 +144,9 @@ const FilterCard = () => {
                                     <span>{displayValue}</span>
                                     <button
                                         onClick={() => clearFilter(filterType)}
-                                        className='ml-1 hover:text-red-600'
+                                        className='ml-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors'
                                     >
-                                        <X className='w-3 h-3' />
+                                        Clear
                                     </button>
                                 </div>
                             );

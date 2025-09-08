@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { MoreHorizontal, User, Mail, Phone, FileText, Calendar, CheckCircle, XCircle } from 'lucide-react';
@@ -8,11 +8,14 @@ import { APPLICATION_API_END_POINT } from '@/utils/constant';
 import axios from 'axios';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import ResumeViewer from './ResumeViewer';
 
 const shortlistingStatus = ["Accepted", "Rejected"];
 
 const ApplicantsTable = () => {
     const { applicants } = useSelector(store => store.application);
+    const [resumeViewerOpen, setResumeViewerOpen] = useState(false);
+    const [selectedResume, setSelectedResume] = useState(null);
 
     const statusHandler = async (status, id) => {
         try {
@@ -49,6 +52,15 @@ const ApplicantsTable = () => {
             default:
                 return 'bg-gray-50 text-gray-700 border-gray-200';
         }
+    }
+
+    const handleViewResume = (resumeUrl, resumeName, applicantName) => {
+        setSelectedResume({
+            url: resumeUrl,
+            name: resumeName,
+            applicantName: applicantName
+        });
+        setResumeViewerOpen(true);
     }
 
     return (
@@ -105,15 +117,17 @@ const ApplicantsTable = () => {
                             </TableCell>
                             <TableCell>
                                 {item.applicant?.profile?.resume ? (
-                                    <a 
-                                        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
-                                        href={item?.applicant?.profile?.resume} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
+                                    <button
+                                        onClick={() => handleViewResume(
+                                            item?.applicant?.profile?.resume,
+                                            item?.applicant?.profile?.resumeOriginalName,
+                                            item?.applicant?.fullname
+                                        )}
+                                        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline transition-colors"
                                     >
                                         <FileText className="w-4 h-4" />
                                         {item?.applicant?.profile?.resumeOriginalName}
-                                    </a>
+                                    </button>
                                 ) : (
                                     <span className="text-gray-400 text-sm">No resume</span>
                                 )}
@@ -121,12 +135,12 @@ const ApplicantsTable = () => {
                             <TableCell>
                                 <div className="flex items-center gap-2 text-sm text-gray-600">
                                     <Calendar className="w-4 h-4" />
-                                    {formatDate(item?.applicant?.createdAt)}
+                                    {formatDate(item?.createdAt)}
                                 </div>
                             </TableCell>
                             <TableCell>
                                 <Badge className={getStatusColor(item?.status)}>
-                                    {item?.status || "Pending"}
+                                    {item?.status.toUpperCase() || "Pending"}
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right">
@@ -164,6 +178,17 @@ const ApplicantsTable = () => {
                     ))}
                 </TableBody>
             </Table>
+            
+            {/* Resume Viewer Modal */}
+            {selectedResume && (
+                <ResumeViewer
+                    resumeUrl={selectedResume.url}
+                    resumeName={selectedResume.name}
+                    applicantName={selectedResume.applicantName}
+                    open={resumeViewerOpen}
+                    setOpen={setResumeViewerOpen}
+                />
+            )}
         </div>
     )
 }

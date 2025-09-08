@@ -102,7 +102,7 @@ const CompaniesTable = () => {
                                                 Edit Company
                                             </button>
                                             <button
-                                                onClick={() => navigate(`/admin/companies/${company._id}`)}
+                                                onClick={() => navigate(`/admin/companies/${company._id}/view`)}
                                                 className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                                             >
                                                 <Eye className="w-4 h-4" />

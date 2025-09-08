@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Navbar from './shared/Navbar'
     import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
-import { Contact, Mail, Pen, MapPin, Calendar, Download, Star, Award, Briefcase, User, Phone, FileText, Edit3, Upload, Trash2, X, MoreVertical, Camera } from 'lucide-react'
+import { Contact, Mail, Pen, MapPin, Calendar, Download, Star, Award, Briefcase, User, Phone, FileText, Edit3, Upload, Trash2, MoreVertical, Camera } from 'lucide-react'
 import { Badge } from './ui/badge'
 import { Label } from './ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
@@ -217,7 +217,7 @@ const Profile = () => {
                                     <Popover open={photoPopoverOpen} onOpenChange={setPhotoPopoverOpen}>
                                         <PopoverTrigger asChild>
                                             <Button 
-                                                size="sm"
+                                                size="md"
                                                 className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-white text-blue-600 hover:bg-blue-50 shadow-lg border border-blue-200 hover:border-blue-300 transition-all duration-200"
                                             >
                                                 <Edit3 className="h-4 w-4" />
@@ -279,7 +279,7 @@ const Profile = () => {
                                         Edit Bio
                                     </Button>
                                 </div>
-                                <p className="text-blue-100 text-sm">{user?.profile?.bio || 'Add your bio to showcase your expertise'}</p>
+                                <p className="text-blue-110 text-sm">{user?.profile?.bio || 'Add your bio to showcase your expertise'}</p>
                             </div>
 
                             {/* Contact Information */}
