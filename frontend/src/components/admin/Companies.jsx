@@ -52,10 +52,6 @@ const Companies = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <Button variant="outline" className="h-12 px-4 border-gray-200 hover:border-purple-300 hover:text-purple-600">
-                                <Filter className="w-4 h-4 mr-2" />
-                                Filter
-                            </Button>
                             <Button 
                                 onClick={() => navigate("/admin/companies/create")}
                                 className="h-12 px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"

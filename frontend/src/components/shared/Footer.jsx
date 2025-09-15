@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -33,10 +34,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="/" className="text-gray-300 hover:text-white transition-colors">Home</a></li>
-              <li><a href="/jobs" className="text-gray-300 hover:text-white transition-colors">Browse Jobs</a></li>
-              <li><a href="/browse" className="text-gray-300 hover:text-white transition-colors">Search</a></li>
-              <li><a href="/profile" className="text-gray-300 hover:text-white transition-colors">Profile</a></li>
+              <li><Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link></li>
+              <li><Link to="/browse" className="text-gray-300 hover:text-white transition-colors">Browse Jobs</Link></li>
+              <li><Link to="/jobs" className="text-gray-300 hover:text-white transition-colors">Jobs</Link></li>
+              <li><Link to="/profile" className="text-gray-300 hover:text-white transition-colors">Profile</Link></li>
             </ul>
           </div>
 
@@ -44,16 +45,16 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-white">Support</h3>
             <ul className="space-y-2">
-              <li><a href="/help" className="text-gray-300 hover:text-white transition-colors">Help Center</a></li>
-              <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
-              <li><a href="/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="/terms" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
+              <li><Link to="/help" className="text-gray-300 hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-gray-300 hover:text-white transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-400">© 2024 JobPortal. All rights reserved.</p>
+        <div className="border-t border-gray-800 mt-6 pt-4 text-center">
+          <p className="text-gray-400 text-sm">© 2024 JobPortal. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { MoreHorizontal, User, Mail, Phone, FileText, Calendar, CheckCircle, XCircle } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 import { APPLICATION_API_END_POINT } from '@/utils/constant';
+import { updateApplicationStatus } from '@/redux/applicationSlice';
 import axios from 'axios';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -14,6 +15,7 @@ const shortlistingStatus = ["Accepted", "Rejected"];
 
 const ApplicantsTable = () => {
     const { applicants } = useSelector(store => store.application);
+    const dispatch = useDispatch();
     const [resumeViewerOpen, setResumeViewerOpen] = useState(false);
     const [selectedResume, setSelectedResume] = useState(null);
 
@@ -22,6 +24,8 @@ const ApplicantsTable = () => {
             axios.defaults.withCredentials = true;
             const res = await axios.post(`${APPLICATION_API_END_POINT}/status/${id}/update`, { status });
             if (res.data.success) {
+                // Update the status in Redux store for real-time update
+                dispatch(updateApplicationStatus({ applicationId: id, status }));
                 toast.success(res.data.message);
             }
         } catch (error) {

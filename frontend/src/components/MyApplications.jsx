@@ -118,7 +118,7 @@ const MyApplications = () => {
                                                 <Badge className={`px-3 py-1 text-sm font-medium border ${getStatusColor(application.status)}`}>
                                                     <div className="flex items-center gap-1">
                                                         {getStatusIcon(application.status)}
-                                                        {application.status || 'Pending'}
+                                                        {(application.status || 'Pending').toUpperCase()}
                                                     </div>
                                                 </Badge>
                                             </div>
