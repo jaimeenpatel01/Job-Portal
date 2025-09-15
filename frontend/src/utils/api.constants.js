@@ -1,5 +1,5 @@
 // API Endpoints
-export const API_BASE = import.meta.env.VITE_API_BASE;
+export const API_BASE = "https://job-portal-backend-j7p6.onrender.com";
 
 // User endpoints
 export const USER_API_END_POINT = `${API_BASE}/api/v1/user`;
