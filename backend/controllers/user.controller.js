@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import { sendWelcomeEmail, sendPasswordResetEmail } from "../utils/novu.js";
+import passport from "../config/passport.js";
 
 export const register = async (req, res) => {
     try {
@@ -801,6 +802,107 @@ export const searchUsers = async (req, res) => {
         console.log(error);
         return res.status(500).json({
             message: "Failed to search users. Please try again.",
+            success: false
+        });
+    }
+};
+
+// Google OAuth Controllers
+export const googleAuth = passport.authenticate('google', {
+    scope: ['profile', 'email']
+});
+
+export const googleCallback = async (req, res) => {
+    try {
+        const user = req.user;
+        console.log('Google OAuth callback - User:', user ? 'Found' : 'Not found');
+        
+        if (!user) {
+            console.log('Google OAuth callback - No user found, redirecting to login');
+            return res.redirect(`${process.env.CLIENT_URL}/login?error=authentication_failed`);
+        }
+
+        // Generate JWT token
+        const tokenData = {
+            userId: user._id
+        };
+        const token = jwt.sign(tokenData, process.env.SECRET_KEY, { expiresIn: '1d' });
+
+        // Update last login
+        user.lastLogin = new Date();
+        await user.save();
+
+        // Set cookie and redirect to frontend
+        res.cookie("token", token, { 
+            maxAge: 1 * 24 * 60 * 60 * 1000, 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined
+        });
+
+        // Check if user needs to complete profile (phone number missing for Google users)
+        if (!user.phoneNumber) {
+            console.log('Google OAuth callback - User needs to complete profile, redirecting to complete-profile');
+            return res.redirect(`${process.env.CLIENT_URL}/complete-profile`);
+        }
+
+        console.log('Google OAuth callback - User authenticated successfully, redirecting to home');
+        return res.redirect(`${process.env.CLIENT_URL}/`);
+    } catch (error) {
+        console.log('Google OAuth callback error:', error);
+        return res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
+    }
+};
+
+export const completeGoogleProfile = async (req, res) => {
+    try {
+        const { phoneNumber, role } = req.body;
+        const userId = req.id;
+
+        if (!phoneNumber || !role) {
+            return res.status(400).json({
+                message: "Phone number and role are required",
+                success: false
+            });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        // Update user profile
+        user.phoneNumber = phoneNumber;
+        user.role = role;
+        await user.save();
+
+        // Send welcome email
+        try {
+            await sendWelcomeEmail({
+                fullname: user.fullname,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                role: user.role
+            });
+        } catch (emailError) {
+            console.log('Email sending failed:', emailError);
+        }
+
+        const userProfile = user.getPublicProfile();
+
+        return res.status(200).json({
+            message: "Profile completed successfully",
+            user: userProfile,
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to complete profile. Please try again.",
             success: false
         });
     }

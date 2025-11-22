@@ -4,6 +4,7 @@ import Login from './components/auth/Login'
 import Signup from './components/auth/Signup'
 import ForgotPassword from './components/auth/ForgotPassword'
 import ResetPassword from './components/auth/ResetPassword'
+import CompleteProfile from './components/auth/CompleteProfile'
 import Home from './components/Home'
 import Browse from './components/Browse'
 import Profile from './components/Profile'
@@ -17,6 +18,7 @@ import PostJob from './components/admin/PostJob'
 import Applicants from './components/admin/Applicants'
 import MyApplications from './components/MyApplications'
 import ProtectedRoute from './components/admin/ProtectedRoute'
+import useGetCurrentUser from './hooks/useGetCurrentUser'
 
 
 const appRouter = createBrowserRouter([
@@ -39,6 +41,10 @@ const appRouter = createBrowserRouter([
   {
     path: '/reset-password',
     element: <ResetPassword />
+  },
+  {
+    path: '/complete-profile',
+    element: <CompleteProfile />
   },
   {
     path: "/description/:id",
@@ -88,6 +94,10 @@ const appRouter = createBrowserRouter([
 
 ])
 function App() {
+  // This hook will automatically fetch the current user on app load
+  // This is crucial for handling OAuth redirects where the user is authenticated
+  // via cookie but Redux state hasn't been updated yet
+  useGetCurrentUser();
 
   return (
     <div>

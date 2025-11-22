@@ -18,15 +18,40 @@ const userSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.googleId; // Phone number not required for Google users initially
+        },
         trim: true,
         minlength: [10, 'Phone number must be at least 10 digits'],
-        maxlength: [15, 'Phone number cannot exceed 15 digits']
+        maxlength: [15, 'Phone number cannot exceed 15 digits'],
+        validate: {
+            validator: function(v) {
+                // Skip validation if it's a Google user without phone number yet
+                if (this.googleId && (!v || v === '')) {
+                    return true;
+                }
+                // For non-Google users or Google users with phone numbers, validate length
+                return !v || v.length >= 10;
+            },
+            message: 'Phone number must be at least 10 digits'
+        }
     },
     password: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.googleId; // Password not required if user signs up with Google
+        },
         minlength: [6, 'Password must be at least 6 characters long']
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true // Allows multiple null values
+    },
+    authProvider: {
+        type: String,
+        enum: ['local', 'google'],
+        default: 'local'
     },
     role: {
         type: String,

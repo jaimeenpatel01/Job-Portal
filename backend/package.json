@@ -5,8 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
+    "dev": "set NODE_ENV=development && nodemon index.js",
+    "start": "set NODE_ENV=production && node index.js",
+    "start:dev": "set NODE_ENV=development && node index.js",
+    "seed": "node scripts/seedDatabase.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jaimeen Patel",
@@ -20,11 +22,14 @@
     "datauri": "^4.1.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-session": "^1.18.2",
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.1",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.1.3"
+    "nodemon": "^3.1.3",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { useDispatch, useSelector } from 'react-redux'
 import { setLoading } from '@/redux/authSlice'
 import { Loader2, Mail, Lock, User, Building2, GraduationCap, Phone, Upload, UserPlus } from 'lucide-react'
+import GoogleSignInButton from './GoogleSignInButton'
 
 const Signup = () => {
     const [input, setInput] = useState({
@@ -238,6 +239,19 @@ const Signup = () => {
                                     'Create Account'
                                 )}
                             </Button>
+
+                            {/* Divider */}
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <span className="w-full border-t border-gray-200" />
+                                </div>
+                                <div className="relative flex justify-center text-xs uppercase">
+                                    <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                                </div>
+                            </div>
+
+                            {/* Google Sign In Button */}
+                            <GoogleSignInButton text="Sign up with Google" />
 
                             {/* Login Link */}
                             <div className="text-center pt-4 border-t border-gray-100">

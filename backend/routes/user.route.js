@@ -14,10 +14,14 @@ import {
     uploadProfilePhoto,
     deleteProfilePhoto,
     getProfileStats,
-    searchUsers
+    searchUsers,
+    googleAuth,
+    googleCallback,
+    completeGoogleProfile
 } from "../controllers/user.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { singleUpload } from "../middlewares/mutler.js";
+import passport from "../config/passport.js";
 // Validation middleware removed to prevent issues
  
 const router = express.Router();
@@ -28,6 +32,14 @@ router.route("/login").post(login);
 router.route("/logout").get(logout);
 router.route("/forgot-password").post(forgotPassword);
 router.route("/reset-password").post(resetPassword);
+
+// Google OAuth routes
+router.route("/auth/google").get(googleAuth);
+router.route("/auth/google/callback").get(
+    passport.authenticate('google', { failureRedirect: `${process.env.CLIENT_URL}/login?error=authentication_failed` }),
+    googleCallback
+);
+router.route("/complete-profile").post(isAuthenticated, completeGoogleProfile);
 
 // Profile management routes
 router.route("/profile").get(isAuthenticated, getProfile);
