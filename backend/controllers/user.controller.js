@@ -815,32 +815,20 @@ export const googleAuth = passport.authenticate('google', {
 export const googleCallback = async (req, res) => {
     try {
         const user = req.user;
-        console.log('[googleCallback] OAuth callback started');
-        console.log('[googleCallback] User found:', !!user);
         
         if (!user) {
-            console.log('[googleCallback] No user in request, redirecting to login with error');
             return res.redirect(`${process.env.CLIENT_URL}/login?error=authentication_failed`);
         }
-
-        console.log('[googleCallback] User details:', {
-            id: user._id,
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            role: user.role
-        });
 
         // Generate JWT token
         const tokenData = {
             userId: user._id
         };
         const token = jwt.sign(tokenData, process.env.SECRET_KEY, { expiresIn: '1d' });
-        console.log('[googleCallback] JWT token generated');
 
         // Update last login
         user.lastLogin = new Date();
         await user.save();
-        console.log('[googleCallback] User last login updated');
 
         // Set cookie and redirect to frontend
         res.cookie("token", token, { 
@@ -850,19 +838,14 @@ export const googleCallback = async (req, res) => {
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined
         });
-        console.log('[googleCallback] Cookie set');
 
         // Check if user needs to complete profile (phone number missing for Google users)
         if (!user.phoneNumber) {
-            console.log('[googleCallback] User missing phone number, redirecting to complete-profile');
             return res.redirect(`${process.env.CLIENT_URL}/complete-profile`);
         }
 
-        console.log('[googleCallback] User has complete profile, redirecting to home');
         return res.redirect(`${process.env.CLIENT_URL}/`);
     } catch (error) {
-        console.log('[googleCallback] Error:', error.message);
-        console.log('[googleCallback] Stack:', error.stack);
         return res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
     }
 };
@@ -872,11 +855,7 @@ export const completeGoogleProfile = async (req, res) => {
         const { phoneNumber, role } = req.body;
         const userId = req.id;
 
-        console.log('[completeGoogleProfile] Request received');
-        console.log('[completeGoogleProfile] Input:', { phoneNumber, role, userId });
-
         if (!phoneNumber || !role) {
-            console.log('[completeGoogleProfile] Missing required fields');
             return res.status(400).json({
                 message: "Phone number and role are required",
                 success: false
@@ -884,50 +863,32 @@ export const completeGoogleProfile = async (req, res) => {
         }
 
         const user = await User.findById(userId);
-        console.log('[completeGoogleProfile] User found:', !!user);
         
         if (!user) {
-            console.log('[completeGoogleProfile] User not found with ID:', userId);
             return res.status(404).json({
                 message: "User not found",
                 success: false
             });
         }
 
-        console.log('[completeGoogleProfile] User before update:', {
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            role: user.role
-        });
-
         // Update user profile
         user.phoneNumber = phoneNumber;
         user.role = role;
         await user.save();
 
-        console.log('[completeGoogleProfile] User after update:', {
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            role: user.role
-        });
-
         // Send welcome email
         try {
-            console.log('[completeGoogleProfile] Sending welcome email');
             await sendWelcomeEmail({
                 fullname: user.fullname,
                 email: user.email,
                 phoneNumber: user.phoneNumber,
                 role: user.role
             });
-            console.log('[completeGoogleProfile] Welcome email sent');
         } catch (emailError) {
-            console.log('[completeGoogleProfile] Email sending failed:', emailError.message);
             // Email sending failed, but don't block the profile completion
         }
 
         const userProfile = user.getPublicProfile();
-        console.log('[completeGoogleProfile] Profile completion successful');
 
         return res.status(200).json({
             message: "Profile completed successfully",
@@ -935,8 +896,6 @@ export const completeGoogleProfile = async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log('[completeGoogleProfile] Error:', error.message);
-        console.log('[completeGoogleProfile] Stack:', error.stack);
         return res.status(500).json({
             message: "Failed to complete profile. Please try again.",
             success: false
