@@ -4,13 +4,13 @@ import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Button } from '../ui/button'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { USER_API_END_POINT } from '@/utils/constant'
 import { toast } from 'sonner'
 import { useDispatch, useSelector } from 'react-redux'
 import { setLoading, setUser } from '@/redux/authSlice'
-import { Loader2, Mail, Lock, User, Building2, GraduationCap } from 'lucide-react'
+import { Loader2, Mail, Lock, User, Building2, GraduationCap, AlertCircle } from 'lucide-react'
 import GoogleSignInButton from './GoogleSignInButton'
 
 const Login = () => {
@@ -19,6 +19,7 @@ const Login = () => {
         password: "",
         role: "",
     });
+    const [searchParams] = useSearchParams();
     const { loading, user } = useSelector(store => store.auth);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -54,7 +55,15 @@ const Login = () => {
         if (user) {
             navigate("/");
         }
-    }, [])
+        
+        // Handle OAuth errors
+        const error = searchParams.get('error');
+        if (error === 'authentication_failed') {
+            toast.error('Google authentication failed. Please try again.');
+        } else if (error === 'server_error') {
+            toast.error('Server error during authentication. Please try again.');
+        }
+    }, [searchParams, user, navigate])
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
