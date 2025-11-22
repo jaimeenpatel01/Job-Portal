@@ -27,20 +27,29 @@ const CompleteProfile = () => {
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        console.log('[CompleteProfile] Form submitted with input:', input);
         try {
             dispatch(setLoading(true));
+            console.log('[CompleteProfile] Sending request to:', `${USER_API_END_POINT}/complete-profile`);
             const res = await axios.post(`${USER_API_END_POINT}/complete-profile`, input, {
                 headers: {
                     "Content-Type": "application/json"
                 },
                 withCredentials: true,
             });
+            console.log('[CompleteProfile] Response received:', res.data);
             if (res.data.success) {
+                console.log('[CompleteProfile] Profile completed successfully');
                 dispatch(setUser(res.data.user));
                 navigate("/");
                 toast.success(res.data.message);
             }
         } catch (error) {
+            console.log('[CompleteProfile] Error submitting form:', {
+                status: error.response?.status,
+                message: error.response?.data?.message,
+                error: error.message
+            });
             toast.error(error.response?.data?.message || "Failed to complete profile");
         } finally {
             dispatch(setLoading(false));
@@ -48,15 +57,26 @@ const CompleteProfile = () => {
     };
 
     useEffect(() => {
+        console.log('[CompleteProfile] useEffect triggered with user:', user);
         // If user is already complete or not logged in, redirect
         if (!user) {
+            console.log('[CompleteProfile] No user found, redirecting to login in 500ms');
             // Add a small delay to ensure user data is fetched
             const timer = setTimeout(() => {
+                console.log('[CompleteProfile] Redirecting to login');
                 navigate("/login");
             }, 500);
             return () => clearTimeout(timer);
         } else if (user.phoneNumber && user.role) {
+            console.log('[CompleteProfile] User already has phone and role, redirecting to home');
             navigate("/");
+        } else {
+            console.log('[CompleteProfile] User needs to complete profile', {
+                hasPhoneNumber: !!user.phoneNumber,
+                hasRole: !!user.role,
+                phoneNumber: user.phoneNumber,
+                role: user.role
+            });
         }
     }, [user, navigate]);
 
