@@ -18,22 +18,23 @@ const userSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        required: function() {
-            return !this.googleId; // Phone number not required for Google users initially
-        },
+        default: '',
         trim: true,
-        minlength: [10, 'Phone number must be at least 10 digits'],
-        maxlength: [15, 'Phone number cannot exceed 15 digits'],
         validate: {
             validator: function(v) {
-                // Skip validation if it's a Google user without phone number yet
+                // For Google users without a phone number yet, allow empty string
                 if (this.googleId && (!v || v === '')) {
                     return true;
                 }
-                // For non-Google users or Google users with phone numbers, validate length
-                return !v || v.length >= 10;
+                // For non-Google users or when phone number is provided, validate length
+                if (!v || v === '') {
+                    // Non-Google users must have a phone number
+                    return !!this.googleId;
+                }
+                // If phone number is provided, it must be 10-15 digits
+                return v.length >= 10 && v.length <= 15;
             },
-            message: 'Phone number must be at least 10 digits'
+            message: 'Phone number must be between 10-15 digits'
         }
     },
     password: {

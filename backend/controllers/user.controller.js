@@ -815,10 +815,8 @@ export const googleAuth = passport.authenticate('google', {
 export const googleCallback = async (req, res) => {
     try {
         const user = req.user;
-        console.log('Google OAuth callback - User:', user ? 'Found' : 'Not found');
         
         if (!user) {
-            console.log('Google OAuth callback - No user found, redirecting to login');
             return res.redirect(`${process.env.CLIENT_URL}/login?error=authentication_failed`);
         }
 
@@ -843,14 +841,11 @@ export const googleCallback = async (req, res) => {
 
         // Check if user needs to complete profile (phone number missing for Google users)
         if (!user.phoneNumber) {
-            console.log('Google OAuth callback - User needs to complete profile, redirecting to complete-profile');
             return res.redirect(`${process.env.CLIENT_URL}/complete-profile`);
         }
 
-        console.log('Google OAuth callback - User authenticated successfully, redirecting to home');
         return res.redirect(`${process.env.CLIENT_URL}/`);
     } catch (error) {
-        console.log('Google OAuth callback error:', error);
         return res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
     }
 };
@@ -868,6 +863,7 @@ export const completeGoogleProfile = async (req, res) => {
         }
 
         const user = await User.findById(userId);
+        
         if (!user) {
             return res.status(404).json({
                 message: "User not found",
@@ -889,7 +885,7 @@ export const completeGoogleProfile = async (req, res) => {
                 role: user.role
             });
         } catch (emailError) {
-            console.log('Email sending failed:', emailError);
+            // Email sending failed, but don't block the profile completion
         }
 
         const userProfile = user.getPublicProfile();
@@ -900,7 +896,6 @@ export const completeGoogleProfile = async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             message: "Failed to complete profile. Please try again.",
             success: false

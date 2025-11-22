@@ -41,7 +41,6 @@ const CompleteProfile = () => {
                 toast.success(res.data.message);
             }
         } catch (error) {
-            console.log(error);
             toast.error(error.response?.data?.message || "Failed to complete profile");
         } finally {
             dispatch(setLoading(false));
@@ -51,7 +50,11 @@ const CompleteProfile = () => {
     useEffect(() => {
         // If user is already complete or not logged in, redirect
         if (!user) {
-            navigate("/login");
+            // Add a small delay to ensure user data is fetched
+            const timer = setTimeout(() => {
+                navigate("/login");
+            }, 500);
+            return () => clearTimeout(timer);
         } else if (user.phoneNumber && user.role) {
             navigate("/");
         }

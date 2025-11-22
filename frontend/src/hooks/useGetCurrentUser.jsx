@@ -11,24 +11,17 @@ const useGetCurrentUser = () => {
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
-                console.log('Fetching current user profile...');
                 const res = await axios.get(`${USER_API_END_POINT}/profile`, {
                     withCredentials: true
                 });
                 if (res.data.success) {
-                    console.log('User profile fetched successfully:', res.data.user.email);
                     dispatch(setUser(res.data.user));
-                } else {
-                    console.log('Failed to fetch user profile:', res.data.message);
                 }
             } catch (error) {
                 // If there's an error (like 401), user is not authenticated
                 // Clear any stale user data from Redux
                 if (error.response?.status === 401 && user) {
-                    console.log('User not authenticated, clearing Redux state');
                     dispatch(setUser(null));
-                } else if (error.response?.status !== 401) {
-                    console.log('Error fetching user profile:', error.response?.data?.message || error.message);
                 }
             }
         };
