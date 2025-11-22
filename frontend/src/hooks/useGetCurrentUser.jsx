@@ -1,12 +1,13 @@
-import { setUser } from '@/redux/authSlice';
-import { USER_API_END_POINT } from '@/utils/constant';
 import axios from 'axios';
-import { useEffect } from 'react';
+import { USER_API_END_POINT } from '@/utils/constant';
+import { setUser } from '@/redux/authSlice';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const useGetCurrentUser = () => {
     const dispatch = useDispatch();
     const { user } = useSelector(store => store.auth);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -32,6 +33,9 @@ const useGetCurrentUser = () => {
                     console.log('[useGetCurrentUser] 401 error - clearing user');
                     dispatch(setUser(null));
                 }
+            } finally {
+                console.log('[useGetCurrentUser] Profile fetch completed');
+                setIsLoading(false);
             }
         };
 
@@ -41,7 +45,7 @@ const useGetCurrentUser = () => {
         fetchCurrentUser();
     }, []); // Empty dependency array to run only on mount
 
-    return null; // This hook doesn't return anything, just manages state
+    return { isLoading, user };
 };
 
 export default useGetCurrentUser;

@@ -11,6 +11,7 @@ import { Loader2, Phone, Building2, GraduationCap, UserCheck } from 'lucide-reac
 import { USER_API_END_POINT } from '@/utils/constant';
 import { setLoading, setUser } from '@/redux/authSlice';
 import Navbar from '../shared/Navbar';
+import { useAuth } from '@/context/AuthContext';
 
 const CompleteProfile = () => {
     const [input, setInput] = useState({
@@ -18,6 +19,7 @@ const CompleteProfile = () => {
         role: "",
     });
     const { loading, user } = useSelector(store => store.auth);
+    const { isLoading: isAuthLoading } = useAuth();
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -57,16 +59,23 @@ const CompleteProfile = () => {
     };
 
     useEffect(() => {
-        console.log('[CompleteProfile] useEffect triggered with user:', user);
+        console.log('[CompleteProfile] useEffect triggered', {
+            user,
+            isAuthLoading,
+            hasPhoneNumber: !!user?.phoneNumber,
+            hasRole: !!user?.role
+        });
+
+        // Wait for auth to finish loading
+        if (isAuthLoading) {
+            console.log('[CompleteProfile] Auth still loading, waiting...');
+            return;
+        }
+
         // If user is already complete or not logged in, redirect
         if (!user) {
-            console.log('[CompleteProfile] No user found, redirecting to login in 500ms');
-            // Add a small delay to ensure user data is fetched
-            const timer = setTimeout(() => {
-                console.log('[CompleteProfile] Redirecting to login');
-                navigate("/login");
-            }, 500);
-            return () => clearTimeout(timer);
+            console.log('[CompleteProfile] No user found, redirecting to login');
+            navigate("/login");
         } else if (user.phoneNumber && user.role) {
             console.log('[CompleteProfile] User already has phone and role, redirecting to home');
             navigate("/");
@@ -78,7 +87,7 @@ const CompleteProfile = () => {
                 role: user.role
             });
         }
-    }, [user, navigate]);
+    }, [user, navigate, isAuthLoading]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
