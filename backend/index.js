@@ -18,8 +18,22 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+const allowedOrigins = [
+    process.env.CLIENT_URL,
+    // Allow all Vercel preview deployments for this project
+    /https:\/\/job-portal-frontend.*\.vercel\.app$/,
+].filter(Boolean);
+
 const corsOptions = {
-    origin: process.env.CLIENT_URL || true,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        const allowed = allowedOrigins.some((o) =>
+            o instanceof RegExp ? o.test(origin) : o === origin
+        );
+        if (allowed) return callback(null, true);
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
